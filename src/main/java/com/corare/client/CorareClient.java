@@ -51,7 +51,7 @@ public final class CorareClient implements ClientModInitializer {
                 trailTicks++;
                 double speed = client.player.getVelocity().horizontalLength();
                 if (speed > 0.08 && trailTicks % 3 == 0 && !client.player.isOnGround()) {
-                    client.world.addParticle(ParticleTypes.PORTAL,
+                    client.world.addParticle(ParticleTypes.PORTAL, false, false,
                             client.player.getX(), client.player.getY() + 0.08, client.player.getZ(),
                             0.0, 0.015, 0.0);
                 }
@@ -60,12 +60,12 @@ public final class CorareClient implements ClientModInitializer {
 
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             MinecraftClient client = MinecraftClient.getInstance();
-            if (world.isClient && hitEffectEnabled && client.world != null) {
+            if (client.world == world && hitEffectEnabled) {
                 for (int i = 0; i < 8; i++) {
                     double ox = (client.world.random.nextDouble() - 0.5) * 0.65;
                     double oy = client.world.random.nextDouble() * 0.75;
                     double oz = (client.world.random.nextDouble() - 0.5) * 0.65;
-                    client.world.addParticle(ParticleTypes.CRIT,
+                    client.world.addParticle(ParticleTypes.CRIT, false, false,
                             entity.getX() + ox, entity.getY() + oy, entity.getZ() + oz,
                             ox * 0.25, 0.08, oz * 0.25);
                 }
