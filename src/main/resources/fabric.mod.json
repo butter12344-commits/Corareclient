@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "corareclient",
+  "version": "${version}",
+  "name": "CorareClient",
+  "description": "A purple-themed modular client-side utility mod for Minecraft 1.21.11.",
+  "authors": ["CorareClient Team"],
+  "environment": "client",
+  "entrypoints": { "client": ["com.corare.client.CorareClient"] },
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
