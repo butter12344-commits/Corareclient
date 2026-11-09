@@ -51,9 +51,9 @@ public final class CorareClient implements ClientModInitializer {
                 trailTicks++;
                 double speed = client.player.getVelocity().horizontalLength();
                 if (speed > 0.08 && trailTicks % 3 == 0 && !client.player.isOnGround()) {
-                    client.world.addParticle(
+                    client.particleManager.addParticle(ParticleTypes.PORTAL,
                             client.player.getX(), client.player.getY() + 0.08, client.player.getZ(),
-                            0.0, 0.015, ParticleTypes.PORTAL);
+                            0.0, 0.015, 0.0);
                 }
             }
         });
@@ -65,9 +65,9 @@ public final class CorareClient implements ClientModInitializer {
                     double ox = (client.world.random.nextDouble() - 0.5) * 0.65;
                     double oy = client.world.random.nextDouble() * 0.75;
                     double oz = (client.world.random.nextDouble() - 0.5) * 0.65;
-                    client.world.addParticle(
+                    client.particleManager.addParticle(ParticleTypes.CRIT,
                             entity.getX() + ox, entity.getY() + oy, entity.getZ() + oz,
-                            ox * 0.25, 0.08, ParticleTypes.CRIT);
+                            ox * 0.25, 0.08, oz * 0.25);
                 }
             }
             return ActionResult.PASS;
