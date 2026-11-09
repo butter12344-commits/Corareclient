@@ -7,7 +7,7 @@ import net.minecraft.text.Text;
 
 public final class CorareClickGui extends Screen {
     private static final int WIDTH = 390;
-    private static final int HEIGHT = 278;
+    private static final int HEIGHT = 320;
     private static final int SIDEBAR = 116;
     private int left;
     private int top;
