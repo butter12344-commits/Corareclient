@@ -21,7 +21,7 @@ public final class CorareClickGui extends Screen {
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        this.renderBackground(ctx, mouseX, mouseY, delta);
+        super.render(ctx, mouseX, mouseY, delta);
         ctx.fill(left, top, left + WIDTH, top + HEIGHT, 0xF20D0915);
         ctx.fill(left, top, left + WIDTH, top + 3, CorareClient.PURPLE);
         ctx.fill(left, top + 3, left + 86, top + HEIGHT, 0xE9161023);
@@ -41,7 +41,6 @@ public final class CorareClickGui extends Screen {
         drawToggle(ctx, "Purple Crosshair", CorareClient.crosshairEnabled, 5, mouseX, mouseY);
         ctx.fill(left + 99, top + 207, left + WIDTH - 12, top + 208, 0xFF3B2A4C);
         ctx.drawTextWithShadow(textRenderer, Text.literal("RIGHT SHIFT  •  CLOSE MENU"), left + 103, top + 218, CorareClient.MUTED);
-        super.render(ctx, mouseX, mouseY, delta);
     }
 
     private void drawToggle(DrawContext ctx, String label, boolean enabled, int index, int mx, int my) {
