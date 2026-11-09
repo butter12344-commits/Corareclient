@@ -4,18 +4,20 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public final class CorareClient implements ClientModInitializer {
-    public static final int PURPLE = 0xFF9B5CFF;
-    public static final int DARK = 0xD9100B1B;
-    public static final int MUTED = 0xFFB8A7CC;
+    public static final int PURPLE = 0xFFB36BFF;
+    public static final int MUTED = 0xFFD6C6E8;
 
     public static boolean hudEnabled = true;
     public static boolean fpsEnabled = true;
@@ -23,8 +25,17 @@ public final class CorareClient implements ClientModInitializer {
     public static boolean keystrokesEnabled = true;
     public static boolean watermarkEnabled = true;
     public static boolean crosshairEnabled = false;
+    public static boolean hitEffectEnabled = true;
+    public static boolean walkTrailEnabled = false;
+    public static boolean skyEnabled = false;
+
+    // HUD opacity is intentionally adjustable independently from the text opacity.
+    public static float hudOpacity = 0.58f;
+    public static int keySize = 22;
+    public static int keyColor = 0xFF9B5CFF;
 
     private static KeyBinding openGuiKey;
+    private static int trailTicks;
 
     @Override
     public void onInitializeClient() {
@@ -36,9 +47,43 @@ public final class CorareClient implements ClientModInitializer {
             while (openGuiKey.wasPressed()) {
                 if (client.currentScreen == null) client.setScreen(new CorareClickGui());
             }
+            if (client.player != null && client.world != null && walkTrailEnabled) {
+                trailTicks++;
+                double speed = client.player.getVelocity().horizontalLength();
+                if (speed > 0.08 && trailTicks % 3 == 0 && !client.player.isOnGround()) {
+                    client.world.addParticle(ParticleTypes.PORTAL,
+                            client.player.getX(), client.player.getY() + 0.08, client.player.getZ(),
+                            0.0, 0.015, 0.0);
+                }
+            }
+        });
+
+        AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            MinecraftClient client = MinecraftClient.getInstance();
+            if (world.isClient && hitEffectEnabled && client.world != null) {
+                for (int i = 0; i < 8; i++) {
+                    double ox = (client.world.random.nextDouble() - 0.5) * 0.65;
+                    double oy = client.world.random.nextDouble() * 0.75;
+                    double oz = (client.world.random.nextDouble() - 0.5) * 0.65;
+                    client.world.addParticle(ParticleTypes.CRIT,
+                            entity.getX() + ox, entity.getY() + oy, entity.getZ() + oz,
+                            ox * 0.25, 0.08, oz * 0.25);
+                }
+            }
+            return ActionResult.PASS;
         });
 
         HudRenderCallback.EVENT.register((drawContext, tickCounter) -> renderHud(drawContext));
+    }
+
+    private static int panelColor() {
+        int alpha = Math.max(0, Math.min(255, Math.round(hudOpacity * 255)));
+        return (alpha << 24) | 0x170D22;
+    }
+
+    private static void glassPanel(DrawContext ctx, int x, int y, int width, int height) {
+        ctx.fill(x, y, x + width, y + height, panelColor());
+        ctx.fill(x, y, x + 2, y + height, 0xAAAD70FF);
     }
 
     private void renderHud(DrawContext ctx) {
@@ -48,32 +93,34 @@ public final class CorareClient implements ClientModInitializer {
         int x = 8;
         int y = 8;
         if (watermarkEnabled) {
-            ctx.fill(x - 4, y - 3, x + 126, y + 16, DARK);
-            ctx.fill(x - 4, y - 3, x - 1, y + 16, PURPLE);
-            ctx.drawTextWithShadow(mc.textRenderer, Text.literal("CORARECLIENT"), x + 3, y + 2, 0xFFFFFFFF);
-            ctx.drawTextWithShadow(mc.textRenderer, Text.literal("1.0"), x + 102, y + 2, PURPLE);
-            y += 23;
+            glassPanel(ctx, x - 4, y - 3, 132, 20);
+            ctx.drawTextWithShadow(mc.textRenderer, Text.literal("CORARECLIENT"), x + 4, y + 3, 0xFFFFFFFF);
+            ctx.drawTextWithShadow(mc.textRenderer, Text.literal("1.0"), x + 105, y + 3, PURPLE);
+            y += 24;
         }
         if (fpsEnabled) {
-            ctx.fill(x - 4, y - 3, x + 76, y + 13, DARK);
-            ctx.drawTextWithShadow(mc.textRenderer, Text.literal("FPS  " + mc.getCurrentFps()), x + 3, y, 0xFFFFFFFF);
-            y += 19;
+            String fps = "FPS  " + mc.getCurrentFps();
+            glassPanel(ctx, x - 4, y - 3, mc.textRenderer.getWidth(fps) + 14, 18);
+            ctx.drawTextWithShadow(mc.textRenderer, Text.literal(fps), x + 4, y + 2, 0xFFFFFFFF);
+            y += 21;
         }
         if (coordsEnabled) {
             String coords = String.format("XYZ  %.1f / %.1f / %.1f", mc.player.getX(), mc.player.getY(), mc.player.getZ());
-            ctx.fill(x - 4, y - 3, x + mc.textRenderer.getWidth(coords) + 10, y + 13, DARK);
-            ctx.drawTextWithShadow(mc.textRenderer, Text.literal(coords), x + 3, y, MUTED);
+            glassPanel(ctx, x - 4, y - 3, mc.textRenderer.getWidth(coords) + 14, 18);
+            ctx.drawTextWithShadow(mc.textRenderer, Text.literal(coords), x + 4, y + 2, MUTED);
         }
         if (keystrokesEnabled) {
-            int bx = 8, by = mc.getWindow().getScaledHeight() - 57;
+            int size = keySize;
+            int bx = 8, by = mc.getWindow().getScaledHeight() - (size * 3 + 12);
             String[] keys = {"W", "A", "S", "D"};
             int[] codes = {GLFW.GLFW_KEY_W, GLFW.GLFW_KEY_A, GLFW.GLFW_KEY_S, GLFW.GLFW_KEY_D};
             for (int i = 0; i < 4; i++) {
-                int px = bx + (i == 0 ? 22 : (i == 1 ? 0 : i == 2 ? 22 : 44));
-                int py = by + (i == 0 ? 0 : 22);
+                int px = bx + (i == 0 ? size : (i == 1 ? 0 : i == 2 ? size : size * 2));
+                int py = by + (i == 0 ? 0 : size);
                 boolean down = GLFW.glfwGetKey(mc.getWindow().getHandle(), codes[i]) == GLFW.GLFW_PRESS;
-                ctx.fill(px, py, px + 20, py + 19, down ? 0xFF7040B8 : DARK);
-                ctx.drawCenteredTextWithShadow(mc.textRenderer, keys[i], px + 10, py + 5, 0xFFFFFFFF);
+                int bg = down ? keyColor : panelColor();
+                ctx.fill(px, py, px + size - 2, py + size - 2, bg);
+                ctx.drawCenteredTextWithShadow(mc.textRenderer, keys[i], px + (size - 2) / 2, py + (size - 2 - 8) / 2, 0xFFFFFFFF);
             }
         }
         if (crosshairEnabled) {
