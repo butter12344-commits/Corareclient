@@ -22,7 +22,7 @@ public class InGameHudMixin {
  @Inject(method="render",at=@At("TAIL"))
  private void butter$renderHud(DrawContext d,RenderTickCounter tickCounter,CallbackInfo ci){
   ButterConfig.Data cfg=ButterConfig.data; MinecraftClient c=MinecraftClient.getInstance();
-  float flash=HitVisuals.getFlashProgress(c);
+  float flash=HitVisuals.getFlashProgress(c);\n  HitVisuals.render(c,d);
   if(flash>0){int a=Math.min(42,(int)(flash*42));d.fill(0,0,d.getScaledWindowWidth(),d.getScaledWindowHeight(),(a<<24)|0x00A855FF);int cx=d.getScaledWindowWidth()/2,cy=d.getScaledWindowHeight()/2;d.fill(cx-7,cy,cx+8,cy+1,0xFFDA9CFF);d.fill(cx,cy-7,cx+1,cy+8,0xFFDA9CFF);}
   if(!cfg.hudEnabled||c.player==null||c.world==null||c.getDebugHud().shouldShowDebugHud())return;
   List<String> lines=new ArrayList<>();
