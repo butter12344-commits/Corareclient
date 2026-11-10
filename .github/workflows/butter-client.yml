@@ -1,0 +1,35 @@
+name: Build ButterClient (nested project)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ButterClient/**'
+      - '.github/workflows/butter-client.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ButterClient
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.7.1'
+      - name: Extract source archive
+        run: unzip -o source.zip -d project
+      - name: Build remapped Fabric JAR
+        working-directory: ButterClient/project
+        run: gradle build --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ButterClient-1.1.0-Minecraft-1.21.11
+          path: ButterClient/project/build/libs/butter-client-*.jar
+          if-no-files-found: error
