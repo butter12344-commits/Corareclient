@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "com.butterclient.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["TitleScreenMixin", "InGameHudMixin", "MouseMixin", "HitVisualsMixin"],
+  "client": ["TitleScreenMixin", "InGameHudMixin", "HitVisualsMixin"],
   "injectors": { "defaultRequire": 1 }
 }
