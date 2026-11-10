@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 
 public class ButterClickGuiScreen extends Screen {
     private static final String[] CATEGORIES = {
-            "HUD", "Visuals", "World", "Cosmetics", "Combat", "Environment", "Extra", "Configs"
+            "HUD", "Visuals", "World", "Cosmetics", "Environment", "Extra", "Configs"
     };
     private static final int PURPLE = 0xFFB58CFF;
     private int selectedCategory = 0;
@@ -63,15 +63,11 @@ public class ButterClickGuiScreen extends Screen {
                 addToggle(contentX, y += 27, "Purple panel style", () -> ButterConfig.data.roundedPanel, v -> ButterConfig.data.roundedPanel = v);
                 addToggle(contentX, y += 27, "Compact HUD", () -> ButterConfig.data.compactHud, v -> ButterConfig.data.compactHud = v);
             }
-            case 3 -> addInfo(contentX, y, "Cosmetics", "Butter trail particles are available in Visuals.", "Animated capes and 3D cosmetics need dedicated assets/renderers.");
-            case 4 -> addInfo(contentX, y, "Combat", "No combat cheats are included.", "Only fair-play visual indicators will be added here.");
             case 2 -> addInfo(contentX, y, "World", "World sky presets and weather visuals are not implemented yet.", "This page is reserved for client-side environment effects.");
-            case 5 -> addInfo(contentX, y, "Environment", "Rain, snow, aurora and ambience effects are planned.", "No placeholder toggles are shown as working features.");
+            case 3 -> addInfo(contentX, y, "Cosmetics", "Butter trail particles are available in Visuals.", "Animated capes and 3D cosmetics need dedicated assets/renderers.");
+            case 4 -> addInfo(contentX, y, "Environment", "Rain, snow, aurora and ambience effects are planned.", "No placeholder toggles are shown as working features.");
+            case 5 -> addToggle(contentX, y, "Zoom (hold C)", () -> ButterConfig.data.zoom, v -> ButterConfig.data.zoom = v);
             case 6 -> {
-                addToggle(contentX, y, "Zoom (hold C)", () -> ButterConfig.data.zoom, v -> ButterConfig.data.zoom = v);
-                addToggle(contentX, y += 27, "Auto Sprint", () -> ButterConfig.data.autoSprint, v -> ButterConfig.data.autoSprint = v);
-            }
-            case 7 -> {
                 addButton(contentX, y, 150, 22, "Save configuration", ButterConfig::save);
                 addInfo(contentX, y + 45, "Config file", "config/butterclient.json", "Settings save automatically when changed.");
             }
@@ -117,11 +113,10 @@ public class ButterClickGuiScreen extends Screen {
         context.drawTextWithShadow(textRenderer, Text.literal("MODULES"), left + 18, top + 41, 0xFFB9A7D8);
         context.drawTextWithShadow(textRenderer, Text.literal(CATEGORIES[selectedCategory].toUpperCase()), left + 150, top + 40, PURPLE);
 
-        if (selectedCategory == 2 || selectedCategory == 3 || selectedCategory == 4 || selectedCategory == 5) {
+        if (selectedCategory == 2 || selectedCategory == 3 || selectedCategory == 4) {
             String title = switch (selectedCategory) {
                 case 2 -> "World";
                 case 3 -> "Cosmetics";
-                case 4 -> "Combat";
                 default -> "Environment";
             };
             context.drawTextWithShadow(textRenderer, Text.literal(title), left + 150, top + 75, 0xFFFFFFFF);
@@ -133,7 +128,7 @@ public class ButterClickGuiScreen extends Screen {
             }), left + 150, top + 95, 0xFFBDB7C9);
             context.drawTextWithShadow(textRenderer, Text.literal("No fake toggles — unfinished features are clearly marked."), left + 150, top + 113, 0xFF8F879F);
         }
-        if (selectedCategory == 7) {
+        if (selectedCategory == 6) {
             context.drawTextWithShadow(textRenderer, Text.literal("Settings file: config/butterclient.json"), left + 150, top + 105, 0xFFBDB7C9);
         }
         context.drawTextWithShadow(textRenderer, Text.literal("RIGHT SHIFT  •  Purple edition"), left + 150, top + panelHeight - 18, 0xFF9A8EAD);

@@ -2,6 +2,7 @@ package com.butterclient.mixin;
 
 import com.butterclient.config.ButterConfig;
 import com.butterclient.module.CpsCounter;
+import com.butterclient.module.HitVisuals;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -24,6 +25,16 @@ public class InGameHudMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void butter$renderHud(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         ButterConfig.Data cfg = ButterConfig.data;
+        float hitFlash = HitVisuals.getFlashProgress(MinecraftClient.getInstance());
+        if (hitFlash > 0.0f) {
+            int alpha = Math.min(42, (int) (hitFlash * 42));
+            context.fill(0, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight(),
+                    (alpha << 24) | 0x00A855FF);
+            int cx = context.getScaledWindowWidth() / 2;
+            int cy = context.getScaledWindowHeight() / 2;
+            context.fill(cx - 7, cy, cx + 8, cy + 1, 0xFFDA9CFF);
+            context.fill(cx, cy - 7, cx + 1, cy + 8, 0xFFDA9CFF);
+        }
         if (!cfg.hudEnabled) return;
 
         MinecraftClient client = MinecraftClient.getInstance();

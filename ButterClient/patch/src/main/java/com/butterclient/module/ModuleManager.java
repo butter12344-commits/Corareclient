@@ -38,11 +38,6 @@ public final class ModuleManager {
             return;
         }
 
-        if (ButterConfig.data.autoSprint && client.options.forwardKey.isPressed()
-                && !client.player.isSneaking() && !client.player.isUsingItem()) {
-            client.player.setSprinting(true);
-        }
-
         boolean zoomActive = ButterConfig.data.zoom && ButterClientKeyState.isZoomHeld(client);
         if (zoomActive) {
             if (!zoomWasActive) {
