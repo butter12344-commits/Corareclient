@@ -25,6 +25,8 @@ jobs:
           gradle-version: '9.7.1'
       - name: Extract source archive
         run: unzip -o source.zip -d project
+      - name: Apply Minecraft 1.21.11 API compatibility fixes
+        run: cp -R patch/src/. project/src/
       - name: Build remapped Fabric JAR
         working-directory: ButterClient/project
         run: gradle build --no-daemon
